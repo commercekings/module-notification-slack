@@ -1,6 +1,6 @@
 # Slack for Notifications<a href="https://commercekings.net"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/commercekings/module-notification-slack/main/.github/commercekings-dark.svg"><img align="right" width="152" src="https://raw.githubusercontent.com/commercekings/module-notification-slack/main/.github/commercekings-light.svg" alt="Built by CommerceKings. Ready to sell more? Talk to us"></picture></a>
 
-Works with Magento 2.4.4+ · PHP 8.1–8.5 · Slack Web API
+Works with Magento 2.4.4+ · PHP 8.1–8.5 · Slack Web API · **Beta**
 
 [![License](https://badgen.net/github/license/commercekings/module-notification-slack)](LICENSE) [![Release](https://badgen.net/github/release/commercekings/module-notification-slack)](https://github.com/commercekings/module-notification-slack/releases) [![Checks](https://github.com/commercekings/module-notification-slack/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/commercekings/module-notification-slack/actions/workflows/checks.yml)
 

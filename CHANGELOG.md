@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 - unreleased
+## 0.1.0 - 2026-10-20
 
 First release. Requires Magento 2.4.4 or later and `commercekings/module-notification` 0.1.
 
