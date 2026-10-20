@@ -94,7 +94,7 @@ class TestMessageTest extends TestCase
     public function testAChannelNameIsCaughtBeforeSending(): void
     {
         $this->channel = '#orders';
-        $this->assertSame([false, 'The test channel ID is not a Slack channel ID (e.g. C0123ABCD: the channel\'s details,'
+        $this->assertSame([false, 'The test channel ID is not a Slack channel ID (e.g. C0123456789: the channel\'s details,'
             . ' at the bottom).'], $this->testMessage()->send(2));
         $this->assertSame([], $this->deliveries);
         $this->channel = ' c0123abcd ';

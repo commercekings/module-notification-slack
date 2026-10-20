@@ -14,7 +14,7 @@
                 </field>
                 <field id="test_channel_id" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Test channel ID</label>
-                    <comment>Where "Send test message" posts, e.g. C0123ABCD: in Slack, open the channel's details; the ID is at the bottom. Features that post to Slack have their own channel settings.</comment>
+                    <comment>Where "Send test message" posts, e.g. C0123456789: in Slack, open the channel's details; the ID is at the bottom. Features that post to Slack have their own channel settings.</comment>
                 </field>
                 <field id="test_message" translate="label comment" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Test</label>

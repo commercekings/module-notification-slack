@@ -7,9 +7,10 @@ Works with Magento 2.4.4+ · PHP 8.1–8.5 · Slack Web API
 **Messages for your team, in your Slack channels, through your own Slack app.**
 
 Notification reaches your shoppers by email, text and WhatsApp; this module adds Slack for the people who run the
-shop. **Works together with:**
+shop. Needs [module-notification](https://github.com/commercekings/module-notification), the base every notification
+runs on.
 
-- [module-notification](https://github.com/commercekings/module-notification) – the base every notification runs on.
+What it gives you:
 
 - **A Slack channel for Notification.** A `slack` channel and provider: any feature can post to a Slack channel ID
   through Notification's sender, with the same retry rules as every other channel.
@@ -34,9 +35,10 @@ bin/magento setup:upgrade
 ```
 
 Then, in Slack, **Create New App > From a manifest** with [docs/slack-app-manifest.json](docs/slack-app-manifest.json),
-**Install to Workspace** and copy the **Bot User OAuth Token** (`xoxb-…`). In Magento, **Stores > Configuration >
-CommerceKings > Notifications > Slack**: paste the token, enter a test channel ID, save, and press **Send test
-message**.
+**Install to Workspace** and copy the **Bot User OAuth Token** (`xoxb-…`); for a private channel, `/invite @Magento`
+in it. In Magento, **Stores > Configuration >
+CommerceKings > Notifications > Slack**: paste the token, enter a test channel ID (`C0123456789`), save, and press
+**Send test message**.
 
 ## Settings
 
@@ -44,15 +46,21 @@ message**.
 |---|---|
 | Bot token (website) | – stored encrypted; also `bin/magento config:sensitive:set commercekings_notification/slack/bot_token` |
 | Test channel ID (website) | – where *Send test message* posts |
-| `commercekings_notification/slack/api_base_url` (no admin field) | `https://slack.com/api` – only `https` on `slack.com` is used; anything else falls back to the default, with a warning in the log |
+| `commercekings_notification/slack/api_base_url` (no admin field) | `https://slack.com/api` – only `https` on slack.com or a subdomain is used; anything else falls back to the default, with a warning in the log |
 | `commercekings_notification/slack/allow_custom_api_base_url` (no admin field) | off – `1` allows any `api_base_url`, for a test double |
+
+## Before going live
+
+- Invite the app to private channels (`/invite @Magento`); public channels work through `chat:write.public`.
+- Use one Slack app per workspace; a website without its own token uses the default one.
+- Keep shopper data out of team messages: post counts and references, not names, emails or phone numbers.
 
 ## For developers
 
 Post through Notification's sender, from a queue consumer or cron – never while a shopper's request waits:
 
 ```php
-$sender->send(Delivery::text($storeId, 'slack', 'C0123ABCD',
+$sender->send(Delivery::text($storeId, 'slack', 'C0123456789',
     fn () => new DeliveryContent([], null, null, "*Store health*\nCron: OK"),
     useCooldown: false, stoppable: false, type: 'your_type'));
 ```
@@ -79,7 +87,7 @@ of this module is `@api`:** `SlackProvider`, `ChannelIdNormalizer`, `SlackClient
 | Errors to handle | `Exception\TemporaryFailureException` (`getRetryAfter()`) and `Exception\MessageSentException` – Notification's, `@api`; `CommerceKings\NotificationSlack\Exception\SlackException` (`getSlackError()`) – this module's, not `@api`: catch it as `\RuntimeException` if you only need "refused" |
 | Another Slack provider | Notification's `Model\ProviderPool` "providers" (`@api`), item `slack`: replace it with your `Api\ProviderInterface` |
 | Other recipients than channel IDs | Notification's `Model\RecipientNormalizerPool` "normalizers" (`@api`), item `slack`: replace it with your `Api\RecipientNormalizerInterface` |
-| Settings (website scope) | `commercekings_notification/slack/bot_token` (encrypted, sensitive), `…/test_channel_id`, `…/api_base_url` and `…/allow_custom_api_base_url` (no admin fields: another URL than `https://*.slack.com` only with the second set, e.g. for a test double or a gateway) |
+| Settings | the paths in [Settings](#settings) |
 
 To replace the provider or the normalizer, add them to your module's `etc/di.xml` and load it after this one
 (`<sequence><module name="CommerceKings_NotificationSlack"/></sequence>` in `module.xml`):
@@ -104,12 +112,6 @@ To replace the provider or the normalizer, add them to your module's `etc/di.xml
 A replacement provider keeps `getChannel()` returning `slack` and, like this one, posts only from the queue consumer,
 cron or the admin.
 
-## Before going live
-
-- Invite the app to private channels (`/invite @Magento`); public channels work through `chat:write.public`.
-- Use one Slack app per workspace; a website without its own token uses the default one.
-- Keep shopper data out of team messages: post counts and references, not names, emails or phone numbers.
-
 ## Limitations
 
 - All text is escaped: a feature can't post a labelled link (`<url|text>`) or a mention (`<@U…>`, `<!here>`).
@@ -119,7 +121,7 @@ cron or the admin.
 
 ## Tested (as of 0.1.0)
 
-- **Automated tests:** 48 unit tests, 3 JavaScript tests and 4 integration tests (unit and JavaScript tests run on
+- **Automated tests:** 48 unit test cases (35 test methods, some with data sets), 3 JavaScript tests and 4 integration tests (unit and JavaScript tests run on
   every push); 89% line coverage by the unit tests.
 - **End to end on Magento 2.4.9:** installed with Composer, the admin's *Send test message* and Notification's sender
   against a simulated Slack API: the decrypted token, the normalized channel ID, escaped text, and Slack's refusal

@@ -59,7 +59,7 @@ class TestMessage
         }
         $channel = $this->channelIds->normalize($channel);
         if ($channel === '') {
-            return [false, (string)__('The test channel ID is not a Slack channel ID (e.g. C0123ABCD: the channel\'s'
+            return [false, (string)__('The test channel ID is not a Slack channel ID (e.g. C0123456789: the channel\'s'
                 . ' details, at the bottom).')];
         }
         $text = (string)__('Test message from %1: Slack is connected to your Magento notifications.',
