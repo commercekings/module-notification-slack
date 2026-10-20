@@ -65,6 +65,43 @@ $sender->send(Delivery::text($storeId, 'slack', 'C0123ABCD',
 
 The details are in [How it works](docs/how-it-works.md).
 
+## Extending
+
+The stable parts are Notification's public API (`@api`), the `slack` channel code and the settings' paths. **No class
+of this module is `@api`:** `SlackProvider`, `ChannelIdNormalizer`, `SlackClient`, `Config`, `TestMessage` and
+`SlackException` may change in any release; use them only through the extension points below.
+
+| For | Use |
+|---|---|
+| Posting to Slack from any module | `CommerceKings\Notification\Api\SenderInterface` with `Api\Data\Delivery` (channel `slack`, recipient a channel ID) and `Api\Data\DeliveryContent::$text` – all `@api` |
+| Errors to handle | `Exception\TemporaryFailureException` (`getRetryAfter()`) and `Exception\MessageSentException` – Notification's, `@api`; `CommerceKings\NotificationSlack\Exception\SlackException` (`getSlackError()`) – this module's, not `@api`: catch it as `\RuntimeException` if you only need "refused" |
+| Another Slack provider | Notification's `Model\ProviderPool` "providers" (`@api`), item `slack`: replace it with your `Api\ProviderInterface` |
+| Other recipients than channel IDs | Notification's `Model\RecipientNormalizerPool` "normalizers" (`@api`), item `slack`: replace it with your `Api\RecipientNormalizerInterface` |
+| Settings (website scope) | `commercekings_notification/slack/bot_token` (encrypted, sensitive), `…/test_channel_id`, `…/api_base_url` (no admin field: a proxy, a Slack-compatible gateway or a test double) |
+
+To replace the provider or the normalizer, add them to your module's `etc/di.xml` and load it after this one
+(`<sequence><module name="CommerceKings_NotificationSlack"/></sequence>` in `module.xml`):
+
+```xml
+<type name="CommerceKings\Notification\Model\ProviderPool">
+    <arguments>
+        <argument name="providers" xsi:type="array">
+            <item name="slack" xsi:type="object">Vendor\Module\Model\SlackProvider</item>
+        </argument>
+    </arguments>
+</type>
+<type name="CommerceKings\Notification\Model\RecipientNormalizerPool">
+    <arguments>
+        <argument name="normalizers" xsi:type="array">
+            <item name="slack" xsi:type="object">Vendor\Module\Model\SlackRecipientNormalizer</item>
+        </argument>
+    </arguments>
+</type>
+```
+
+A replacement provider keeps `getChannel()` returning `slack` and, like this one, posts only from the queue consumer,
+cron or the admin.
+
 ## Before going live
 
 - Invite the app to private channels (`/invite @Magento`); public channels work through `chat:write.public`.
