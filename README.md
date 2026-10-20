@@ -80,7 +80,10 @@ The details are in [How it works](docs/how-it-works.md).
 ## Tested (as of 0.1.0)
 
 - **Automated tests:** 43 unit tests, 3 JavaScript tests and 4 integration tests (unit and JavaScript tests run on
-  every push).
+  every push); 89% line coverage by the unit tests.
+- **End to end on Magento 2.4.9:** installed with Composer, the admin's *Send test message* and Notification's sender
+  against a simulated Slack API: the decrypted token, the normalized channel ID, escaped text, and Slack's refusal
+  shown with what to fix.
 - **Not tested:** a live Slack workspace.
 
 ## More

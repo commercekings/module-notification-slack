@@ -14,7 +14,6 @@
 "Enter a test channel ID and save the configuration first.","Enter a test channel ID and save the configuration first."
 "Test message from %1: Slack is connected to your Magento notifications.","Test message from %1: Slack is connected to your Magento notifications."
 "The test channel ID is not a Slack channel ID (e.g. C0123ABCD: the channel's details, at the bottom).","The test channel ID is not a Slack channel ID (e.g. C0123ABCD: the channel's details, at the bottom)."
-"Slack refused the test message: %1","Slack refused the test message: %1"
 "Slack is limiting requests; try again in %1 seconds.","Slack is limiting requests; try again in %1 seconds."
 "Slack is limiting requests; try again in a minute.","Slack is limiting requests; try again in a minute."
 "Slack did not answer in time; the message may still arrive. Check the channel.","Slack did not answer in time; the message may still arrive. Check the channel."

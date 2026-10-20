@@ -92,7 +92,7 @@ class TestMessageTest extends TestCase
         foreach ([
             [new \InvalidArgumentException('No valid recipient'), 'not a Slack channel ID'],
             [new SlackException('Slack refused the message (not_in_channel): invite the app', 'not_in_channel'),
-                'Slack refused the test message: Slack refused the message (not_in_channel): invite the app'],
+                'Slack refused the message (not_in_channel): invite the app'],
             [new TemporaryFailureException('429', 30), 'try again in 30 seconds'],
             [new TemporaryFailureException('ratelimited'), 'try again in a minute'],
             [new MessageSentException('no answer'), 'may still arrive'],

@@ -64,7 +64,8 @@ class TestMessage
             return [false, (string)__('The test channel ID is not a Slack channel ID (e.g. C0123ABCD: the channel\'s'
                 . ' details, at the bottom).')];
         } catch (SlackException $error) {
-            return [false, (string)__('Slack refused the test message: %1', $error->getMessage())];
+            // already says what Slack refused and what to fix
+            return [false, $error->getMessage()];
         } catch (TemporaryFailureException $error) {
             return [false, $error->getRetryAfter() !== null
                 ? (string)__('Slack is limiting requests; try again in %1 seconds.', $error->getRetryAfter())
