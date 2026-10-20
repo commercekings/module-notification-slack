@@ -71,12 +71,16 @@ class SlackClient
         if (!preg_match('#^https?://#i', $baseUrl)) {
             throw new \RuntimeException('The Slack API URL must start with https:// (or http:// for a test double).');
         }
+        // encoded here: invalid UTF-8 (a cut log line) becomes U+FFFD - Guzzle's "json" option would throw, which
+        // reads as "may have been posted" though nothing was sent
+        $body = json_encode(['channel' => $channel, 'text' => $text, 'unfurl_links' => false,
+            'unfurl_media' => false], JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR);
         try {
             $response = $this->http->request('POST', rtrim($baseUrl, '/') . '/chat.postMessage', [
                 // with the charset: Slack warns "missing_charset" without it
                 'headers' => ['Authorization' => 'Bearer ' . $token,
                     'Content-Type' => 'application/json; charset=utf-8'],
-                'json' => ['channel' => $channel, 'text' => $text, 'unfurl_links' => false, 'unfurl_media' => false],
+                'body' => $body,
                 'connect_timeout' => $this->connectTimeout,
                 'timeout' => $this->timeout,
                 'http_errors' => false,

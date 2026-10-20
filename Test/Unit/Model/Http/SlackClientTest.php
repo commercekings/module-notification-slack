@@ -72,6 +72,16 @@ class SlackClientTest extends TestCase
         $this->assertSame([3, 10], [$options['connect_timeout'], $options['timeout']]);
     }
 
+    public function testInvalidUtf8IsPostedWithAReplacementCharacterNotRefused(): void
+    {
+        $this->client([new Response(200, [], '{"ok":true,"channel":"C0123ABCD","ts":"1.2"}')])
+            ->postMessage('https://slack.com/api', self::TOKEN, 'C0123ABCD', "Error: caf\xC3 (cut)");
+        $this->assertSame("Error: caf\u{FFFD} (cut)", json_decode((string)$this->history[0]['request']->getBody(),
+            true)['text']);
+        $this->assertSame('application/json; charset=utf-8',
+            $this->history[0]['request']->getHeaderLine('Content-Type'));
+    }
+
     public function testWithoutATokenOrWithAStrangeUrlNothingIsRequested(): void
     {
         foreach ([['https://slack.com/api', ''], ['file:///etc/passwd', self::TOKEN], ['', self::TOKEN]] as [$url, $token]) {
