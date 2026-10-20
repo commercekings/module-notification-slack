@@ -16,8 +16,9 @@ method `chat.postMessage` with a bot token.
 Checks on 2026-10-20 in the CommerceKings sandbox (Magento 2.4.9, a simulated Slack Web API): *Send test message*
 posted to the test channel with the decrypted bot token as `Bearer`, JSON body, links and media unfurling off; a
 `not_in_channel` refusal was shown with its fix and nothing retried; a message through Notification's sender from the
-command line reached the normalized channel ID with `&`, `<` and `>` escaped. Sending against Slack's real API is not
-yet verified (no workspace).
+command line reached the normalized channel ID with `&`, `<` and `>` escaped. Live on 2026-10-20 in the same
+sandbox: *Send test message* posted to a real Slack workspace with a real bot token. Slack's rate limits and refusals
+were checked against the simulated API only.
 
 The GitHub workflow checks package metadata, PHP syntax on 8.1–8.5, Git archive contents, the unit tests and the
 JavaScript tests.

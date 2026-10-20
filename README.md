@@ -84,7 +84,8 @@ The details are in [How it works](docs/how-it-works.md).
 - **End to end on Magento 2.4.9:** installed with Composer, the admin's *Send test message* and Notification's sender
   against a simulated Slack API: the decrypted token, the normalized channel ID, escaped text, and Slack's refusal
   shown with what to fix.
-- **Not tested:** a live Slack workspace.
+- **Live:** *Send test message* posted to a real Slack workspace with a real bot token.
+- **Not tested live:** Slack's rate limits and refusals (simulated only).
 
 ## More
 
