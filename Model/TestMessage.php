@@ -8,6 +8,7 @@ use CommerceKings\Notification\Api\Data\DeliveryContent;
 use CommerceKings\Notification\Api\SenderInterface;
 use CommerceKings\Notification\Exception\MessageSentException;
 use CommerceKings\Notification\Exception\TemporaryFailureException;
+use CommerceKings\Notification\Model\RecipientNormalizerPool;
 use CommerceKings\NotificationSlack\Exception\SlackException;
 use CommerceKings\NotificationSlack\Model\Provider\SlackProvider;
 use Magento\Store\Model\StoreManagerInterface;
@@ -25,7 +26,8 @@ class TestMessage
         private readonly SenderInterface $sender,
         private readonly Config $config,
         private readonly StoreManagerInterface $stores,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly RecipientNormalizerPool $normalizers
     ) {
     }
 
@@ -56,14 +58,19 @@ class TestMessage
         if ($channel === '') {
             return [false, (string)__('Enter a test channel ID and save the configuration first.')];
         }
+        $channel = $this->normalizers->normalize(SlackProvider::CHANNEL, $channel);
+        if ($channel === '') {
+            return [false, (string)__('The test channel ID is not a Slack channel ID (e.g. C0123ABCD: the channel\'s'
+                . ' details, at the bottom).')];
+        }
         $text = (string)__('Test message from %1: Slack is connected to your Magento notifications.',
             $this->config->getStoreName($storeId));
         try {
             $result = $this->sender->send(Delivery::text($storeId, SlackProvider::CHANNEL, $channel,
                 fn () => new DeliveryContent([], null, null, $text), false, null, false, self::TYPE));
-        } catch (\InvalidArgumentException) {
-            return [false, (string)__('The test channel ID is not a Slack channel ID (e.g. C0123ABCD: the channel\'s'
-                . ' details, at the bottom).')];
+        } catch (\InvalidArgumentException $error) {
+            // the channel ID is checked above: a refusal of the message itself (e.g. no text)
+            return [false, (string)__('The test message was not posted: %1', $error->getMessage())];
         } catch (SlackException $error) {
             // already says what Slack refused and what to fix
             return [false, $error->getMessage()];

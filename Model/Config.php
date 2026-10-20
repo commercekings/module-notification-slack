@@ -7,16 +7,22 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /** Slack settings, per website (Stores > Configuration > CommerceKings > Notifications > Slack). */
 class Config
 {
     private const PREFIX = 'commercekings_notification/slack/';
     public const DEFAULT_API_BASE_URL = 'https://slack.com/api';
+    /** Not in the admin: set only for a test double or a gateway (bin/magento config:set ... 1). */
+    public const ALLOW_CUSTOM_API_BASE_URL = self::PREFIX . 'allow_custom_api_base_url';
+
+    private bool $warned = false;
 
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig,
-        private readonly StoreManagerInterface $stores
+        private readonly StoreManagerInterface $stores,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -26,11 +32,34 @@ class Config
         return $this->value('bot_token', $storeId);
     }
 
-    /** Slack's Web API, without a trailing slash. Only a test double changes it (no admin field). */
+    /**
+     * Slack's Web API, without a trailing slash. Only https on slack.com or its subdomains, so a changed setting cannot
+     * send the bot token elsewhere - unless ALLOW_CUSTOM_API_BASE_URL is set (a test double). Anything else falls back
+     * to Slack's own URL, with one warning per process.
+     */
     public function getApiBaseUrl(int $storeId): string
     {
         $url = rtrim($this->value('api_base_url', $storeId), '/');
-        return $url !== '' ? $url : self::DEFAULT_API_BASE_URL;
+        if ($url === '') {
+            return self::DEFAULT_API_BASE_URL;
+        }
+        if ($this->scopeConfig->isSetFlag(self::ALLOW_CUSTOM_API_BASE_URL, ScopeInterface::SCOPE_STORE, $storeId)) {
+            return $url;
+        }
+        $parts = parse_url($url);
+        $host = strtolower((string)($parts['host'] ?? ''));
+        if (strtolower((string)($parts['scheme'] ?? '')) === 'https' && !isset($parts['user'])
+            && ($host === 'slack.com' || str_ends_with($host, '.slack.com'))) {
+            return $url;
+        }
+        if (!$this->warned) {
+            $this->warned = true;
+            $this->logger->warning(sprintf('CommerceKings_NotificationSlack: commercekings_notification/slack/'
+                . 'api_base_url (%s://%s) is not https on slack.com; using %s. To use another URL (a test double), set '
+                . '%s to 1.', $parts['scheme'] ?? '?', $host !== '' ? $host : '?', self::DEFAULT_API_BASE_URL,
+                self::ALLOW_CUSTOM_API_BASE_URL));
+        }
+        return self::DEFAULT_API_BASE_URL;
     }
 
     /** Where the admin's "Send test message" posts. */

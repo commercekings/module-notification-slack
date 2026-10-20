@@ -7,6 +7,8 @@ use CommerceKings\Notification\Api\Data\Delivery;
 use CommerceKings\Notification\Api\SenderInterface;
 use CommerceKings\Notification\Exception\MessageSentException;
 use CommerceKings\Notification\Exception\TemporaryFailureException;
+use CommerceKings\Notification\Model\RecipientNormalizerPool;
+use CommerceKings\NotificationSlack\Model\ChannelIdNormalizer;
 use CommerceKings\NotificationSlack\Exception\SlackException;
 use CommerceKings\NotificationSlack\Model\Config;
 use CommerceKings\NotificationSlack\Model\TestMessage;
@@ -61,7 +63,8 @@ class TestMessageTest extends TestCase
         $stores->method('getDefaultStoreView')->willReturn($this->store(1, 'Default Store View'));
         $logger = $this->createStub(LoggerInterface::class);
         $logger->method('error')->willReturnCallback(function ($message) { $this->errors[] = $message; });
-        return new TestMessage($sender, $config, $stores, $logger);
+        return new TestMessage($sender, $config, $stores, $logger,
+            new RecipientNormalizerPool(['slack' => new ChannelIdNormalizer()]));
     }
 
     public function testItIsSentAsATeamMessageOfTheScopeSStore(): void
@@ -89,10 +92,21 @@ class TestMessageTest extends TestCase
         $this->assertSame([], $this->deliveries);
     }
 
+    public function testAChannelNameIsCaughtBeforeSending(): void
+    {
+        $this->channel = '#orders';
+        $this->assertSame([false, 'The test channel ID is not a Slack channel ID (e.g. C0123ABCD: the channel\'s details,'
+            . ' at the bottom).'], $this->testMessage()->send(2));
+        $this->assertSame([], $this->deliveries);
+        $this->channel = ' c0123abcd ';
+        $this->assertSame([true, 'Posted to C0123ABCD.'], $this->testMessage()->send(2));
+    }
+
     public function testEachFailureSaysWhatHappened(): void
     {
         foreach ([
-            [new \InvalidArgumentException('No valid recipient'), 'not a Slack channel ID'],
+            [new \InvalidArgumentException('A Slack message needs text; nothing was posted.'),
+                'The test message was not posted: A Slack message needs text'],
             [new SlackException('Slack refused the message (not_in_channel): invite the app', 'not_in_channel'),
                 'Slack refused the message (not_in_channel): invite the app'],
             [new TemporaryFailureException('429', 30), 'try again in 30 seconds'],

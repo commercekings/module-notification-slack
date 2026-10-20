@@ -15,8 +15,9 @@ shop. **Works together with:**
   through Notification's sender, with the same retry rules as every other channel.
 - **Your app, your workspace.** Create a Slack app from the [manifest](docs/slack-app-manifest.json) in a minute; no
   third-party app, no App Directory review. The bot token is stored encrypted, per website.
-- **Safe text.** Shop data can't ping `@channel` or anyone, or slip in links: `&` and `<` are escaped; line breaks,
-  `*bold*` and `> ` quotes stay.
+- **Safe text.** Shop data can't ping `@channel` or anyone, or hide a link behind a label: `&` and `<` are escaped,
+  and every Slack mention or labelled link starts with `<`. Line breaks and `> ` quotes stay. Slack still turns a bare
+  URL into a link, and `*`, `_`, `~` and `` ` `` in shop text still format it.
 - **Never posted twice, never lost to a rate limit.** Slack's rate limits are Notification's "try again later"; a
   timeout after the request left counts as posted, so a retry never doubles a message.
 - **Light.** Nothing runs on storefront or checkout requests: no frontend code, plugins or observers. Slack is only
@@ -43,7 +44,8 @@ message**.
 |---|---|
 | Bot token (website) | – stored encrypted; also `bin/magento config:sensitive:set commercekings_notification/slack/bot_token` |
 | Test channel ID (website) | – where *Send test message* posts |
-| `commercekings_notification/slack/api_base_url` (no admin field) | `https://slack.com/api` – only a test double changes it |
+| `commercekings_notification/slack/api_base_url` (no admin field) | `https://slack.com/api` – only `https` on `slack.com` is used; anything else falls back to the default, with a warning in the log |
+| `commercekings_notification/slack/allow_custom_api_base_url` (no admin field) | off – `1` allows any `api_base_url`, for a test double |
 
 ## For developers
 
@@ -77,7 +79,7 @@ of this module is `@api`:** `SlackProvider`, `ChannelIdNormalizer`, `SlackClient
 | Errors to handle | `Exception\TemporaryFailureException` (`getRetryAfter()`) and `Exception\MessageSentException` – Notification's, `@api`; `CommerceKings\NotificationSlack\Exception\SlackException` (`getSlackError()`) – this module's, not `@api`: catch it as `\RuntimeException` if you only need "refused" |
 | Another Slack provider | Notification's `Model\ProviderPool` "providers" (`@api`), item `slack`: replace it with your `Api\ProviderInterface` |
 | Other recipients than channel IDs | Notification's `Model\RecipientNormalizerPool` "normalizers" (`@api`), item `slack`: replace it with your `Api\RecipientNormalizerInterface` |
-| Settings (website scope) | `commercekings_notification/slack/bot_token` (encrypted, sensitive), `…/test_channel_id`, `…/api_base_url` (no admin field: a proxy, a Slack-compatible gateway or a test double) |
+| Settings (website scope) | `commercekings_notification/slack/bot_token` (encrypted, sensitive), `…/test_channel_id`, `…/api_base_url` and `…/allow_custom_api_base_url` (no admin fields: another URL than `https://*.slack.com` only with the second set, e.g. for a test double or a gateway) |
 
 To replace the provider or the normalizer, add them to your module's `etc/di.xml` and load it after this one
 (`<sequence><module name="CommerceKings_NotificationSlack"/></sequence>` in `module.xml`):
@@ -110,13 +112,14 @@ cron or the admin.
 
 ## Limitations
 
+- All text is escaped: a feature can't post a labelled link (`<url|text>`) or a mention (`<@U…>`, `<!here>`).
 - Plain text (Slack's mrkdwn), no Block Kit layouts, files or threads.
 - Bot tokens without rotation; Slack's incoming webhooks are not supported.
 - One workspace per website.
 
 ## Tested (as of 0.1.0)
 
-- **Automated tests:** 45 unit tests, 3 JavaScript tests and 4 integration tests (unit and JavaScript tests run on
+- **Automated tests:** 47 unit tests, 3 JavaScript tests and 4 integration tests (unit and JavaScript tests run on
   every push); 89% line coverage by the unit tests.
 - **End to end on Magento 2.4.9:** installed with Composer, the admin's *Send test message* and Notification's sender
   against a simulated Slack API: the decrypted token, the normalized channel ID, escaped text, and Slack's refusal
