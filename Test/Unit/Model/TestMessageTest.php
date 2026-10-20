@@ -7,7 +7,6 @@ use CommerceKings\Notification\Api\Data\Delivery;
 use CommerceKings\Notification\Api\SenderInterface;
 use CommerceKings\Notification\Exception\MessageSentException;
 use CommerceKings\Notification\Exception\TemporaryFailureException;
-use CommerceKings\Notification\Model\RecipientNormalizerPool;
 use CommerceKings\NotificationSlack\Model\ChannelIdNormalizer;
 use CommerceKings\NotificationSlack\Exception\SlackException;
 use CommerceKings\NotificationSlack\Model\Config;
@@ -64,7 +63,7 @@ class TestMessageTest extends TestCase
         $logger = $this->createStub(LoggerInterface::class);
         $logger->method('error')->willReturnCallback(function ($message) { $this->errors[] = $message; });
         return new TestMessage($sender, $config, $stores, $logger,
-            new RecipientNormalizerPool(['slack' => new ChannelIdNormalizer()]));
+            new ChannelIdNormalizer());
     }
 
     public function testItIsSentAsATeamMessageOfTheScopeSStore(): void

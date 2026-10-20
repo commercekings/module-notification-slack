@@ -8,7 +8,6 @@ use CommerceKings\Notification\Api\Data\DeliveryContent;
 use CommerceKings\Notification\Api\SenderInterface;
 use CommerceKings\Notification\Exception\MessageSentException;
 use CommerceKings\Notification\Exception\TemporaryFailureException;
-use CommerceKings\Notification\Model\RecipientNormalizerPool;
 use CommerceKings\NotificationSlack\Exception\SlackException;
 use CommerceKings\NotificationSlack\Model\Provider\SlackProvider;
 use Magento\Store\Model\StoreManagerInterface;
@@ -27,7 +26,7 @@ class TestMessage
         private readonly Config $config,
         private readonly StoreManagerInterface $stores,
         private readonly LoggerInterface $logger,
-        private readonly RecipientNormalizerPool $normalizers
+        private readonly ChannelIdNormalizer $channelIds
     ) {
     }
 
@@ -58,7 +57,7 @@ class TestMessage
         if ($channel === '') {
             return [false, (string)__('Enter a test channel ID and save the configuration first.')];
         }
-        $channel = $this->normalizers->normalize(SlackProvider::CHANNEL, $channel);
+        $channel = $this->channelIds->normalize($channel);
         if ($channel === '') {
             return [false, (string)__('The test channel ID is not a Slack channel ID (e.g. C0123ABCD: the channel\'s'
                 . ' details, at the bottom).')];
