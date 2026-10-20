@@ -82,12 +82,13 @@ class SlackProvider implements ProviderInterface
     }
 
     /**
-     * Plain text as Slack shows it: &, < and > escaped, so shop data cannot mention @channel or form links; line
-     * breaks and *bold* stay. Text over MAX_LENGTH is cut with "…", never inside an escape.
+     * Plain text as Slack shows it: & and < escaped, so shop data cannot mention @channel or anyone, or form links
+     * (every Slack control sequence starts with <). > stays, so a "> " line is a quote. Line breaks and *bold* stay.
+     * Text over MAX_LENGTH is cut with "…", never inside an escape.
      */
     public static function format(string $text): string
     {
-        $text = str_replace(['&', '<', '>'], ['&amp;', '&lt;', '&gt;'], $text);
+        $text = str_replace(['&', '<'], ['&amp;', '&lt;'], $text);
         if (mb_strlen($text) <= self::MAX_LENGTH) {
             return $text;
         }

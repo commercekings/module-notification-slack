@@ -4,7 +4,7 @@ The parts of `commercekings/module-notification-slack`. Start with the [README](
 
 | Part | What it does | Notification extension point |
 |---|---|---|
-| `Model\Provider\SlackProvider` | `slack`: posts `DeliveryContent::$text` to the channel ID in `Delivery::$recipient` as the bot of the delivery's website; escapes `&`, `<`, `>` and cuts text over 39,000 characters with "…"; refuses empty text and any storefront, REST, SOAP or GraphQL request (`\LogicException`, nothing sent) | `ProviderInterface`, `Model\ProviderPool` "providers" |
+| `Model\Provider\SlackProvider` | `slack`: posts `DeliveryContent::$text` to the channel ID in `Delivery::$recipient` as the bot of the delivery's website; escapes `&` and `<` (every mention or link starts with `<`; `>` stays for `> ` quotes) and cuts text over 39,000 characters with "…"; refuses empty text and any storefront, REST, SOAP or GraphQL request (`\LogicException`, nothing sent) | `ProviderInterface`, `Model\ProviderPool` "providers" |
 | `Model\ChannelIdNormalizer` | a recipient is a channel ID: trimmed, upper case, `C`, `G` or `D` and 8–20 letters or digits; anything else is `''`, so the sender throws `\InvalidArgumentException` before any claim | `RecipientNormalizerInterface`, `Model\RecipientNormalizerPool` "normalizers" |
 | `Model\Http\SlackClient` | `POST <api_base_url>/chat.postMessage` over Guzzle: JSON `{channel, text, unfurl_links: false, unfurl_media: false}`, `Authorization: Bearer <token>`, 3 s to connect, 10 s in all | `Exception\TemporaryFailureException`, `Exception\MessageSentException` |
 | `Model\Config` | the bot token (encrypted, sensitive), the test channel ID and the API URL, read for the delivery's store | – |

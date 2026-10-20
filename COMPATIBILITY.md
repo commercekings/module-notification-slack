@@ -18,7 +18,7 @@ posted to the test channel with the decrypted bot token as `Bearer`, JSON body, 
 `not_in_channel` refusal was shown with its fix and nothing retried; a message through Notification's sender from the
 command line reached the normalized channel ID with `&`, `<` and `>` escaped. Live on 2026-10-20 in the same
 sandbox: *Send test message* posted to a real Slack workspace with a real bot token. Slack's rate limits and refusals
-were checked against the simulated API only.
+were checked against the simulated API only. Since then `>` is no longer escaped, so `> ` quote lines render (unit- and integration-tested).
 
 The GitHub workflow checks package metadata, PHP syntax on 8.1–8.5, Git archive contents, the unit tests and the
 JavaScript tests.

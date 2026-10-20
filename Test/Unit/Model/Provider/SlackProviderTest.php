@@ -55,9 +55,15 @@ class SlackProviderTest extends TestCase
 
     public function testShopDataCannotMentionEveryoneOrFormLinks(): void
     {
-        $this->send($this->provider(), 'Order by <!channel> & <https://evil.test|click> > 5');
-        $this->assertSame('Order by &lt;!channel&gt; &amp; &lt;https://evil.test|click&gt; &gt; 5', $this->posts[0][3]);
+        $this->send($this->provider(), 'Order by <!channel> <@U0123ABCD> & <https://evil.test|click> > 5');
+        $this->assertSame('Order by &lt;!channel> &lt;@U0123ABCD> &amp; &lt;https://evil.test|click> > 5', $this->posts[0][3]);
         $this->assertSame('&amp;amp;', SlackProvider::format('&amp;'), 'raw text in, escaped once');
+    }
+
+    public function testAQuoteMarkerStaysAQuote(): void
+    {
+        $this->assertSame("*Store health*\n> Cron: late\n> Disk: 91% > 90%",
+            SlackProvider::format("*Store health*\n> Cron: late\n> Disk: 91% > 90%"), 'not &gt;');
     }
 
     public function testALongTextIsCutVisiblyNeverInsideAnEscape(): void

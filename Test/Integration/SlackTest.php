@@ -87,10 +87,10 @@ class SlackTest extends TestCase
         $sender = $this->sender();
         $channel = 'c' . strtoupper(substr(bin2hex(random_bytes(6)), 0, 10));
         foreach ([1, 2] as $run) {
-            $this->assertSame(SenderInterface::SENT, $sender->send($this->delivery($channel, "*Store health* <!channel> #$run")));
+            $this->assertSame(SenderInterface::SENT, $sender->send($this->delivery($channel, "*Store health* <!channel>\n> late #$run")));
         }
         $this->assertCount(2, $this->posts, 'no cooldown: the second alert is posted too');
-        $this->assertSame(['https://slack.test/api', 'xoxb-test', strtoupper($channel), '*Store health* &lt;!channel&gt; #1'],
+        $this->assertSame(['https://slack.test/api', 'xoxb-test', strtoupper($channel), "*Store health* &lt;!channel>\n> late #1"],
             $this->posts[0]);
     }
 

@@ -15,8 +15,8 @@ shop. **Works together with:**
   through Notification's sender, with the same retry rules as every other channel.
 - **Your app, your workspace.** Create a Slack app from the [manifest](docs/slack-app-manifest.json) in a minute; no
   third-party app, no App Directory review. The bot token is stored encrypted, per website.
-- **Safe text.** Shop data can't ping `@channel` or slip in links: `&`, `<` and `>` are escaped; line breaks and
-  `*bold*` stay.
+- **Safe text.** Shop data can't ping `@channel` or anyone, or slip in links: `&` and `<` are escaped; line breaks,
+  `*bold*` and `> ` quotes stay.
 - **Never posted twice, never lost to a rate limit.** Slack's rate limits are Notification's "try again later"; a
   timeout after the request left counts as posted, so a retry never doubles a message.
 - **Light.** Nothing runs on storefront or checkout requests: no frontend code, plugins or observers. Slack is only
@@ -79,7 +79,7 @@ The details are in [How it works](docs/how-it-works.md).
 
 ## Tested (as of 0.1.0)
 
-- **Automated tests:** 44 unit tests, 3 JavaScript tests and 4 integration tests (unit and JavaScript tests run on
+- **Automated tests:** 45 unit tests, 3 JavaScript tests and 4 integration tests (unit and JavaScript tests run on
   every push); 89% line coverage by the unit tests.
 - **End to end on Magento 2.4.9:** installed with Composer, the admin's *Send test message* and Notification's sender
   against a simulated Slack API: the decrypted token, the normalized channel ID, escaped text, and Slack's refusal
