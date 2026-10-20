@@ -6,6 +6,8 @@ namespace CommerceKings\NotificationSlack\Test\Unit\Model;
 use CommerceKings\NotificationSlack\Model\ChannelIdNormalizer;
 use CommerceKings\NotificationSlack\Model\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 /** Settings per store's website, and the channel IDs Slack recipients must be. */
@@ -20,7 +22,12 @@ class ConfigTest extends TestCase
             $this->reads[] = [$path, $scope, $storeId];
             return $values[$path] ?? null;
         });
-        return new Config($scopeConfig);
+        $store = $this->createStub(Store::class);
+        $store->method('getFrontendName')->willReturn('Main Website Store');
+        $store->method('getName')->willReturn('Default Store View');
+        $stores = $this->createStub(StoreManagerInterface::class);
+        $stores->method('getStore')->willReturn($store);
+        return new Config($scopeConfig, $stores);
     }
 
     public function testValuesAreReadForTheStoreAndTrimmed(): void
@@ -40,6 +47,14 @@ class ConfigTest extends TestCase
             => 'http://fake.test/api/'])->getApiBaseUrl(1));
         $this->assertSame(Config::DEFAULT_API_BASE_URL, $this->config(['commercekings_notification/slack/api_base_url'
             => ' / '])->getApiBaseUrl(1));
+    }
+
+    public function testTheShopIsNamedAsInEveryOtherMessage(): void
+    {
+        $this->assertSame('Acme', $this->config(['general/store_information/name' => ' Acme '])->getStoreName(3));
+        $this->assertSame('Main Website Store', $this->config(['general/store_information/name' => ''])->getStoreName(3),
+            'not the store view name');
+        $this->assertSame('Main Website Store', $this->config([])->getStoreName(3));
     }
 
     public function testRecipientsAreChannelIds(): void

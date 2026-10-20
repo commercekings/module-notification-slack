@@ -56,7 +56,8 @@ class TestMessage
         if ($channel === '') {
             return [false, (string)__('Enter a test channel ID and save the configuration first.')];
         }
-        $text = (string)__('Test message from %1: Slack is connected to your Magento notifications.', $store->getName());
+        $text = (string)__('Test message from %1: Slack is connected to your Magento notifications.',
+            $this->config->getStoreName($storeId));
         try {
             $result = $this->sender->send(Delivery::text($storeId, SlackProvider::CHANNEL, $channel,
                 fn () => new DeliveryContent([], null, null, $text), false, null, false, self::TYPE));

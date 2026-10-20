@@ -48,6 +48,7 @@ class TestMessageTest extends TestCase
         $config = $this->createStub(Config::class);
         $config->method('getBotToken')->willReturnCallback(fn () => $this->token);
         $config->method('getTestChannelId')->willReturnCallback(fn () => $this->channel);
+        $config->method('getStoreName')->willReturnCallback(fn (int $storeId) => $storeId === 5 ? 'Acme B2B' : 'Acme');
         $website = $this->createStub(WebsiteInterface::class);
         $website->method('getDefaultGroupId')->willReturn(4);
         $group = $this->createStub(GroupInterface::class);
@@ -69,7 +70,8 @@ class TestMessageTest extends TestCase
         $delivery = $this->deliveries[0];
         $this->assertSame([5, 'slack', 'C0123ABCD', false, false, 'slack_test'], [$delivery->storeId, $delivery->channel,
             $delivery->recipient, $delivery->useCooldown, $delivery->stoppable, $delivery->type]);
-        $this->assertStringContainsString('Test message from B2B view', ($delivery->content)()->text);
+        $this->assertStringContainsString('Test message from Acme B2B:', ($delivery->content)()->text,
+            'the shop\'s name, not the store view\'s');
         $this->testMessage()->send(null);
         $this->assertSame(1, $this->deliveries[1]->storeId, 'Default Config: the default store view');
         $this->assertSame([false, 'No store view found for this scope.'], $this->testMessage()->send(9));
