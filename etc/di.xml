@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- the provider for the "slack" channel; the only one, so Notification uses it without a selector -->
+    <type name="CommerceKings\Notification\Model\ProviderPool">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="slack" xsi:type="object">CommerceKings\NotificationSlack\Model\Provider\SlackProvider</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- recipients are Slack channel IDs (C…, G…, D…); anything else is refused before it is sent -->
+    <type name="CommerceKings\Notification\Model\RecipientNormalizerPool">
+        <arguments>
+            <argument name="normalizers" xsi:type="array">
+                <item name="slack" xsi:type="object">CommerceKings\NotificationSlack\Model\ChannelIdNormalizer</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- lazy: the pool builds every provider, but Slack's client and settings load only when a message is posted -->
+    <type name="CommerceKings\NotificationSlack\Model\Provider\SlackProvider">
+        <arguments>
+            <argument name="client" xsi:type="object">CommerceKings\NotificationSlack\Model\Http\SlackClient\Proxy</argument>
+            <argument name="config" xsi:type="object">CommerceKings\NotificationSlack\Model\Config\Proxy</argument>
+        </arguments>
+    </type>
+    <!-- Slack's Web API over Guzzle (Magento ships it) -->
+    <type name="CommerceKings\NotificationSlack\Model\Http\SlackClient">
+        <arguments>
+            <argument name="http" xsi:type="object">GuzzleHttp\Client</argument>
+        </arguments>
+    </type>
+    <!-- the token stays out of app:config:dump and can be set with config:sensitive:set -->
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="commercekings_notification/slack/bot_token" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

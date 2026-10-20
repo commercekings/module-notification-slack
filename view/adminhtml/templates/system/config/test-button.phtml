@@ -1,0 +1,11 @@
+<?php
+/** @var \CommerceKings\NotificationSlack\Block\Adminhtml\System\Config\TestButton $block */
+/** @var \Magento\Framework\Escaper $escaper */
+$config = $block->getButtonConfig();
+?>
+<button type="button" class="action-default" id="<?= $escaper->escapeHtmlAttr($block->getData('html_id')) ?>"
+        data-mage-init='<?= $escaper->escapeHtmlAttr(json_encode(['CommerceKings_NotificationSlack/js/test-button' => $config])) ?>'>
+    <span><?= $escaper->escapeHtml(__('Send test message')) ?></span>
+</button>
+<span id="<?= $escaper->escapeHtmlAttr($config['resultId']) ?>" class="ck-slack-test-result" role="status"
+      aria-live="polite"></span>

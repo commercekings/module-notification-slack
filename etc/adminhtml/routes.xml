@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="admin">
+        <!-- /<admin>/ck_notification_slack/test/send : the "Send test message" button -->
+        <route id="ck_notification_slack" frontName="ck_notification_slack">
+            <module name="CommerceKings_NotificationSlack" before="Magento_Backend"/>
+        </route>
+    </router>
+</config>

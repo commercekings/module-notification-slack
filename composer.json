@@ -1,0 +1,46 @@
+{
+    "name": "commercekings/module-notification-slack",
+    "description": "Slack for CommerceKings Notification: a \"slack\" channel and provider that posts to your team's Slack channels through your own Slack app (bot token, stored encrypted), with Slack's rate limits and errors mapped to Notification's retry rules and a \"Send test message\" button.",
+    "type": "magento2-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "CommerceKings"
+        }
+    ],
+    "require": {
+        "php": "~8.1.0||~8.2.0||~8.3.0||~8.4.0||~8.5.0",
+        "magento/framework": "^103.0.4",
+        "magento/module-backend": "^102.0",
+        "magento/module-config": "^101.2",
+        "magento/module-store": "^101.1",
+        "commercekings/module-notification": "^0.1",
+        "guzzlehttp/guzzle": "^7.4"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "CommerceKings\\NotificationSlack\\": ""
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    },
+    "archive": {
+        "exclude": [
+            "/Test/",
+            "/.github/",
+            "/.gitignore",
+            "/.gitattributes"
+        ]
+    },
+    "homepage": "https://github.com/commercekings/module-notification-slack",
+    "support": {
+        "issues": "https://github.com/commercekings/module-notification-slack/issues",
+        "source": "https://github.com/commercekings/module-notification-slack"
+    }
+}
