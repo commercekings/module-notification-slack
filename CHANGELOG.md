@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 - unreleased
 
-First version. Requires Magento 2.4.4 or later and `commercekings/module-notification` 0.1.
+First release. Requires Magento 2.4.4 or later and `commercekings/module-notification` 0.1.
 
 - **Provider:** Slack (`slack`) for a new `slack` channel: `chat.postMessage` as your own app's bot, the bot token
   per website (stored encrypted, a sensitive setting); recipients are channel IDs (`C…`, `G…`, `D…`), anything else
@@ -20,5 +20,4 @@ First version. Requires Magento 2.4.4 or later and `commercekings/module-notific
   10 s in all; lazy client and settings.
 - **Send test message** in the admin, with its own ACL resource.
 - A Slack app manifest (`chat:write`, `chat:write.public`).
-
-No public release has been tagged or published yet.
+- JSON posted as UTF-8 (`charset=utf-8`); invalid UTF-8 in a text (a cut log line) is sent as U+FFFD, not refused.
