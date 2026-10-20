@@ -66,7 +66,7 @@ class SlackClientTest extends TestCase
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame('http://fake.test/api/chat.postMessage', (string)$request->getUri(), 'the base URL is configurable');
         $this->assertSame('Bearer ' . self::TOKEN, $request->getHeaderLine('Authorization'));
-        $this->assertStringStartsWith('application/json', $request->getHeaderLine('Content-Type'));
+        $this->assertSame('application/json; charset=utf-8', $request->getHeaderLine('Content-Type'));
         $this->assertSame(['channel' => 'C0123ABCD', 'text' => 'Hello', 'unfurl_links' => false, 'unfurl_media' => false],
             json_decode((string)$request->getBody(), true));
         $this->assertSame([3, 10], [$options['connect_timeout'], $options['timeout']]);

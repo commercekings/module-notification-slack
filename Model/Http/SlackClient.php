@@ -73,7 +73,9 @@ class SlackClient
         }
         try {
             $response = $this->http->request('POST', rtrim($baseUrl, '/') . '/chat.postMessage', [
-                'headers' => ['Authorization' => 'Bearer ' . $token],
+                // with the charset: Slack warns "missing_charset" without it
+                'headers' => ['Authorization' => 'Bearer ' . $token,
+                    'Content-Type' => 'application/json; charset=utf-8'],
                 'json' => ['channel' => $channel, 'text' => $text, 'unfurl_links' => false, 'unfurl_media' => false],
                 'connect_timeout' => $this->connectTimeout,
                 'timeout' => $this->timeout,
